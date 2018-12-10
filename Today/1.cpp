@@ -1,37 +1,80 @@
 #include <cstdio>
-#include <cmath>
+#include <memory.h>
 
-long long k;
+struct node {
+	int w,l,r;
+} t[300+5];
 
-long long run1() {
-	int sq=sqrt(k);
-	int n;
-	for(n=sq;n>2;n--) {
-		if(!(k%n)) {
-			if(n%2) {
-				if((k/n)-(n/2)>0) {
-					return n;
-				}
+int N,M,c[300+5]={0},f[300+5][300+5]={0};
+bool vis[300+5][300+5]={false};
+
+int max(int x, int y) {
+	return x>y?x:y;
+}
+
+int dp(int n, int k) {
+	if(k==0) {
+		vis[n][k]=true;
+		f[n][k]=0;
+		return 0;
+	}
+	int i;
+	int res=-1;
+	int res1,res2;
+	if(t[n].r) {
+		res=dp(t[n].r,k);
+	}
+	for(i=0;i<k;i++) {
+		if(t[n].l==0) {
+			res1=0;
+		} else {
+			if(vis[t[n].l][i]) {
+				res1=f[t[n].l][i];
+			} else {
+				res1=dp(t[n].l,i);
 			}
 		}
+		if(res1==-1) {
+			continue;
+		}
+		if(t[n].r==0) {
+			res2=0;
+		} else {
+			if(vis[t[n].r][k-i-1]) {
+				res2=f[t[n].r][k-i-1];
+			} else {
+				res2=dp(t[n].r,k-i-1);
+			}
+		}
+		if(res2==-1) {
+			continue;
+		}
+		res=max(res,res1+res2+t[n].w);
 	}
-	return 1;
+	vis[n][k]=true;
+	f[n][k]=res;
+	return res;
+}
+
+void read() {
+	scanf("%d%d",&N,&M);
+	int n;
+	int x,y;
+	memset(t,0,sizeof(t));
+	for(n=1;n<=N;n++) {
+		scanf("%d%d",&x,&y);
+		t[n].w=y;
+		if(!c[x]) {
+			t[x].l=n;
+		} else {
+			t[c[x]].r=n;
+		}
+		c[x]=n;
+	}
 }
 
 int main() {
-	scanf("%lld",&k);
-	long long x,y=1;
-	x=run1();
-	long long tmp=k/x;
-	while(tmp%2==0) {
-		tmp>>=1;
-		y<<=1;
-	}
-	y=y*2*x;
-	if((k/y-y/2+1)>0) {
-		printf("%lld %lld\n",k/y-y/2+1,k/y-y/2+y);
-	} else {
-		printf("%lld %lld\n",k/x-x/2,k/x+x/2);
-	}
+	read();
+	printf("%d\n",dp(0,M+1));
 	return 0;
 }

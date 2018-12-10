@@ -1,54 +1,55 @@
 #include <cstdio>
-
-long long a[1000000+5],z[1000000+5]={0};
+int a[100000+5],b[100000+5],f[100000+5]={0};
 int N;
-bool pd[1000000+5]={false};
+
+void read() {
+	scanf("%d",&N);
+	int n,x;
+	for(n=1;n<=N;n++) {
+		scanf("%d",&x);
+		a[x]=n;
+	}
+	for(n=1;n<=N;n++) {
+		scanf("%d",&b[n]);
+		b[n]=a[b[n]];
+	}
+}
+
+int min(int x, int y) {
+	return x<y?x:y;
+}
+
+void dp() {
+	int i,l,r,mid;
+	for(i=1;i<=N;i++) {
+		f[i]=0x7fffffff;
+		l=0;
+		r=i;
+		while(l<r) {
+			mid=(l+r)>>1;
+			if(f[mid+1]<=b[i]) {
+				l=mid+1;
+			} else {
+				r=mid;
+			}
+		}
+		f[l+1]=min(f[l+1],b[i]);
+	}
+	l=0;
+	r=N;
+	while(l<r) {
+		mid=(l+r)>>1;
+		if(f[mid+1]==0x7fffffff) {
+			r=mid;
+		} else {
+			l=mid+1;
+		}
+	}
+	printf("%d\n",l);
+}
 
 int main() {
-	scanf("%d",&N);
-	int n;
-	long long cnt,res=0;
-	for(n=1;n<=N;n++) {
-		scanf("%lld",&a[n]);
-		z[n]=a[n]+z[n-1];
-	}
-	for(n=1;n<=N;n++) {
-		if(a[n]*(N-n)>z[N]-z[n]) {
-			pd[n]=true;
-		}
-	}
-	cnt=0;
-	for(n=1;n<=N;n++) {
-		if(!pd[n]) {
-			res+=(++cnt)*a[n];
-		}
-	}
-	for(n=N;n>0;n--) {
-		if(pd[n]) {
-			res+=(++cnt)*a[n];
-		}
-	}
-	printf("%lld\n",res);
-	cnt=0;
-	for(n=1;n<=N;n++) {
-		if(!pd[n]) {
-			cnt++;
-			if(cnt<N) {
-				printf("%lld ",a[n]);
-			} else {
-				printf("%lld\n",a[n]);
-			}
-		}
-	}
-	for(n=N;n>0;n--) {
-		if(pd[n]) {
-			cnt++;
-			if(cnt<N) {
-				printf("%lld ",a[n]);
-			} else {
-				printf("%lld\n",a[n]);
-			}
-		}
-	}
+	read();
+	dp();
 	return 0;
 }
